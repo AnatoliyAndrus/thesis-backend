@@ -44,4 +44,20 @@ public class Comment {
 
     @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> replies;
+
+    /**
+     * if the comment was edited, this field becomes true, false otherwise
+     */
+    @Column(name = "edited")
+    private boolean edited = false;
+
+
+    /**
+     * listener which toggles {@link #edited edited} field to true if comment is updated
+     */
+    @PrePersist
+    @PreUpdate
+    public void beforeSave() {
+        this.edited = true;
+    }
 }

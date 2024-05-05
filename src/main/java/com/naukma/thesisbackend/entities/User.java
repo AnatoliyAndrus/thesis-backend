@@ -2,7 +2,9 @@ package com.naukma.thesisbackend.entities;
 
 import com.naukma.thesisbackend.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,8 +14,17 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "user")
+@Table(name = "app-user")
+@NoArgsConstructor
 public class User {
+
+    public User(String userId, String nickname, String email, String password, UserRole role) {
+        this.userId = userId;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     /**
      * represents unique string ID of user which is chosen by user
