@@ -4,7 +4,9 @@ import com.naukma.thesisbackend.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -21,16 +23,10 @@ public class User {
     private String userId;
 
     /**
-     * represents first name of user
+     * represents displayed nickname of user
      */
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    /**
-     * represents last name of user
-     */
-    @Column(name = "surname", nullable = false)
-    private String surname;
+    @Column(name = "nickname", nullable = false)
+    private String nickname;
 
     /**
      * represents email of user
@@ -47,6 +43,7 @@ public class User {
 
     /**
      * avatar of user, encoded in byte array.
+     * can be null
      */
     @Column(name = "avatar", columnDefinition = "BLOB")
     @Lob
@@ -59,21 +56,25 @@ public class User {
     private String password;
 
     /**
-     * likes left by user under the posts
+     * posts liked by user
      */
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<PostLike> postLikes;
 
     /**
-     * likes left by user under the comments
+     * comments liked by user
      */
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<CommentLike> commentLikes;
 
     /**
-     * posts which user liked
+     * posts which user is author of
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Post> posts;
+
+    @Column(name = "registered_date")
+    @CreationTimestamp
+    private LocalDateTime registeredDate;
 
 }
