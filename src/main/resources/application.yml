@@ -13,3 +13,6 @@ security:
   jwt:
     token:
       secret-key: 1234
+
+custom:
+  avatar-directory: src/main/resources/static/avatars

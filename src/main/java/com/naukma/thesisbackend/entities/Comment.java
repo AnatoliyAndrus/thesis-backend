@@ -45,6 +45,15 @@ public class Comment {
     @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> replies;
 
+
+    /**
+     * user, who created this comment
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+//    @JsonIgnore
+    private User commentAuthor;
+
     /**
      * if the comment was edited, this field becomes true, false otherwise
      */

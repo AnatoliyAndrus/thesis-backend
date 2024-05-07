@@ -34,7 +34,7 @@ public class TokenProvider {
     /**
      * parses JWT token and returns encrypted userId, null if token is invalid
      * @param token JWT token
-     * @return userId
+     * @return userId if token is valid, null otherwise
      */
     public String validateToken(String token) {
         try {
@@ -49,6 +49,6 @@ public class TokenProvider {
     }
 
     private Instant genAccessExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("+03:00"));
+        return LocalDateTime.now().plusDays(2).toInstant(ZoneOffset.of("+03:00"));
     }
 }

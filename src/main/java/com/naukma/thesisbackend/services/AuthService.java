@@ -8,6 +8,7 @@ import com.naukma.thesisbackend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,5 +40,9 @@ public class AuthService implements UserDetailsService {
 
     return repository.save(user);
 
+  }
+
+  public String getCurrentUserId(){
+    return SecurityContextHolder.getContext().getAuthentication().getName();
   }
 }
