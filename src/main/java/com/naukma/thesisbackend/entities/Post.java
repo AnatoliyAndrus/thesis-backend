@@ -41,7 +41,7 @@ public class Post {
     /**
      * likes of post
      */
-    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostLike> postLikes;
 
     /**

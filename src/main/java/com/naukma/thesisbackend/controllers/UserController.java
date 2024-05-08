@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -159,6 +160,7 @@ public class UserController {
 
         Set<PostDto> likedPostDtos = likedPosts
                 .stream()
+                .sorted(Comparator.comparing(Post::getPostedDate).reversed())
                 .map(post->postService.postToPostDto(post, null, false))
                 .collect(Collectors.toSet());
 

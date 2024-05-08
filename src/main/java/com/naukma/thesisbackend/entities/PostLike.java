@@ -2,7 +2,9 @@ package com.naukma.thesisbackend.entities;
 
 import com.naukma.thesisbackend.entities.keys.PostLikeKey;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,10 +16,17 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "post_like")
 public class PostLike {
     @EmbeddedId
     private PostLikeKey id;
+
+    public PostLike(User user, Post post){
+        this.user = user;
+        this.post = post;
+    }
 
     @ManyToOne
     @MapsId("userId")

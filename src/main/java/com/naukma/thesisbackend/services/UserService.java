@@ -28,7 +28,8 @@ public class UserService {
      * @throws EntityNotFoundException if user was not found in database
      */
     public Optional<User> getUserById(String userId) {
-        return userRepository.findByUserId(userId);
+        return userRepository.
+                findByUserId(userId);
     }
 
     public Set<Post> getLikedPostsByUserId(String userId){

@@ -55,6 +55,14 @@ public class GeneralExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorsMap(errors));
   }
 
+  @ExceptionHandler(ForbiddenException.class)
+  public ResponseEntity<Map<String, List<String>>> handleForbiddenException(ForbiddenException ex) {
+
+    List<String> errors = List.of(ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorsMap(errors));
+  }
+
   private Map<String, List<String>> errorsMap(List<String> errors) {
     Map<String, List<String>> errorResponse = new HashMap<>();
     errorResponse.put("errors", errors);

@@ -70,13 +70,13 @@ public class User {
     /**
      * posts liked by user
      */
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostLike> postLikes;
 
     /**
      * comments liked by user
      */
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CommentLike> commentLikes;
 
     /**
