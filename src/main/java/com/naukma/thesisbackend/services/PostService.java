@@ -52,7 +52,9 @@ public class PostService {
      */
     public PostDto postToPostDto(Post post, @Nullable String userId, boolean comments){
 
-        boolean isLiked = userId != null && !userId.isEmpty() && (post
+        boolean isLiked = userId != null
+                && post.getPostLikes()!=null
+                && !userId.isEmpty() && (post
                 .getPostLikes()
                 .stream()
                 .anyMatch(like -> Objects.equals(like.getUser().getUserId(), userId)));
@@ -62,7 +64,7 @@ public class PostService {
                 post.getTitle(),
                 post.getContent(),
                 post.getPostedDate(),
-                post.getPostLikes().size(),
+                post.getPostLikes()!=null?post.getPostLikes().size():0,
                 comments?getPostCommentTree(post, userId):null,
                 isLiked,
                 post.getPostAuthor().getUserId(),

@@ -46,12 +46,4 @@ public class AuthController {
     return ResponseEntity.ok(new JwtDto(accessToken));
   }
 
-  @GetMapping("/user/{user_id}")
-  public ResponseEntity<Void> getUserData(@PathVariable("user_id") String userId){
-    System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
-    System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-    System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
-
 }

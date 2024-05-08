@@ -24,14 +24,37 @@ public class AuthConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        //temporary settings, to be deleted
+        httpSecurity.csrf().disable();
+        httpSecurity.headers().frameOptions().disable();
+
+
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/h2-console**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/*", "/api/v1/users/{userId}/posts", "api/v1/users/{userId}/avatar").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}/email", "/api/v1/users/{userId}/liked-posts").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/{userId}/avatar").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "api/v1/users/{userId}/avatar").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").authenticated()
+                        .requestMatchers("api/v1/posts/**").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "api/v1/comments/**").permitAll()
+                        .requestMatchers("api/v1/comments/**").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
+                        .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/*").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/auth/user/{userId}").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
-                    )
+                        .anyRequest().permitAll()
+                )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 

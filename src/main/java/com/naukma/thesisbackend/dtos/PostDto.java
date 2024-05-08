@@ -9,7 +9,7 @@ public record PostDto(
     String content,
     LocalDateTime postedDate,
     int likes,
-    Set<CommentDto> commentsTree,
+    Set<CommentDto> comments,
     boolean isLiked,
     String authorUserId,
     String authorNickname
