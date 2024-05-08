@@ -1,31 +1,39 @@
 package com.naukma.thesisbackend.controllers;
 
+import com.naukma.thesisbackend.dtos.CommentDto;
+import com.naukma.thesisbackend.dtos.CommentRequestDto;
 import com.naukma.thesisbackend.dtos.PostDto;
 import com.naukma.thesisbackend.dtos.PostRequestDto;
+import com.naukma.thesisbackend.entities.Comment;
+import com.naukma.thesisbackend.entities.Post;
+import com.naukma.thesisbackend.entities.User;
 import com.naukma.thesisbackend.services.AuthService;
+import com.naukma.thesisbackend.services.CommentService;
 import com.naukma.thesisbackend.services.PostService;
+import com.naukma.thesisbackend.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/posts")
 public class PostController {
 
     private final PostService postService;
+    private final CommentService commentService;
     private final AuthService authService;
+    private final UserService userService;
 
-    public PostController(PostService postService, AuthService authService){
+    public PostController(PostService postService, CommentService commentService, AuthService authService, UserService userService){
         this.postService = postService;
+        this.commentService = commentService;
         this.authService = authService;
+        this.userService = userService;
     }
 
     @GetMapping("/{postId}")
@@ -89,6 +97,11 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * method for toggling like
+     * @param postId id of post to like
+     * @return isLiked with value true if post is liked and false otherwise
+     */
     @PatchMapping("/{postId}/toggle-like")
     public ResponseEntity<?> toggleLike(@PathVariable("postId") Long postId){
         String userId = authService.getCurrentUserId();
@@ -100,4 +113,53 @@ public class PostController {
 
         return ResponseEntity.ok(responseBody);
     }
+
+    /**
+     * method for getting all comments of post
+     * @param postId id of post
+     * @return comments tree
+     */
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<Set<CommentDto>> getCommentsOfPost(@PathVariable("postId") Long postId){
+        String userId = authService.getCurrentUserId();
+
+        return ResponseEntity.ok(postService.getPostCommentTree(postId, userId));
+    }
+
+
+    /**
+     * method for creating comment
+     * @param postId id of post which user is commenting
+     * @param replyTo id of comment to reply to (can be null)
+     * @return created comment
+     */
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<CommentDto> createComment(@PathVariable("postId") Long postId,
+                                                    @RequestParam(name = "replyTo", required = false) Long replyTo,
+                                                    @RequestBody CommentRequestDto commentRequestDto){
+        String userId = authService.getCurrentUserId();
+
+        User user = userService
+                .getUserById(userId)
+                .orElseThrow(()->new EntityNotFoundException("No such user"));
+
+        Post post = postService
+                .getPostById(postId)
+                .orElseThrow(()->new EntityNotFoundException("No such post"));
+
+        Comment comment = new Comment();
+        comment.setCommentAuthor(user);
+        comment.setPost(post);
+        comment.setContent(commentRequestDto.content());
+        if(replyTo!=null) {
+            Comment replyToComment = commentService
+                    .getCommentById(replyTo)
+                    .orElseThrow(()->new EntityNotFoundException("Can't find comment to attach this to"));
+            comment.setReplyTo(replyToComment);
+        }
+
+        return ResponseEntity.ok(commentService.save(comment));
+    }
+
+
 }

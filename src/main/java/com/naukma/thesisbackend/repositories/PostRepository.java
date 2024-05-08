@@ -18,9 +18,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findPostByPostId(Long postId);
 
 
-    @Query("SELECT p FROM Post p " +
+    @Query("SELECT DISTINCT p FROM Post p " +
+            "LEFT JOIN p.tags t " +
             "WHERE (:authorId IS NULL OR p.postAuthor.userId LIKE %:authorId%) " +
-            "AND (:tagIds IS NULL OR :tagIds IN p.tags) " +
+            "AND (:tagIds IS NULL OR t IN :tagIds) " +
             "AND (:minDate IS NULL OR p.postedDate >= :minDate) " +
             "AND (:maxDate IS NULL OR p.postedDate <= :maxDate) " +
             "AND (:title IS NULL OR p.title LIKE %:title%) " +

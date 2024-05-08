@@ -1,5 +1,6 @@
 package com.naukma.thesisbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,7 @@ public class Tag {
     /**
      * set of posts, tagged by this tag
      */
+    @JsonIgnore
     @ManyToMany(mappedBy = "tags")
     private Set<Post> posts;
 }

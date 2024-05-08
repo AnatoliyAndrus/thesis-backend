@@ -2,7 +2,9 @@ package com.naukma.thesisbackend.entities;
 
 import com.naukma.thesisbackend.entities.keys.CommentLikeKey;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,9 +14,16 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "comment_like")
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentLike {
     @EmbeddedId
     private CommentLikeKey id;
+
+    public CommentLike(User user, Comment comment){
+        this.user = user;
+        this.comment = comment;
+    }
 
     @ManyToOne
     @MapsId("userId")

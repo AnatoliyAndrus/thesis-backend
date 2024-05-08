@@ -22,10 +22,8 @@ public class UserService {
 
     /**
      * method which is used for getting user from database by userId
-     * this method performs null check, so it either
      * @param userId id of user
      * @return user with userId matching requested one
-     * @throws EntityNotFoundException if user was not found in database
      */
     public Optional<User> getUserById(String userId) {
         return userRepository.
@@ -37,10 +35,10 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("No such user"));
 
         return user.
-                getPostLikes().
-                stream().
-                map(PostLike::getPost).
-                collect(Collectors.toSet());
+                getPostLikes()
+                .stream()
+                .map(PostLike::getPost)
+                .collect(Collectors.toSet());
     }
 
     public User save(User user){

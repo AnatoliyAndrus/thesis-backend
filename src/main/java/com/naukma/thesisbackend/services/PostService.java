@@ -177,7 +177,7 @@ public class PostService {
 
     public boolean toggleLike(String userId, Long postId){
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ForbiddenException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Post post = postRepository
                 .findPostByPostId(postId)
@@ -195,5 +195,9 @@ public class PostService {
             postLikeRepository.save(newPostLike);
             return true;
         }
+    }
+
+    public Optional<Post> getPostById(Long postId){
+        return postRepository.findPostByPostId(postId);
     }
 }

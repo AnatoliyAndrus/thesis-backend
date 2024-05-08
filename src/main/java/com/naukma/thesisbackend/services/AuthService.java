@@ -6,6 +6,7 @@ import com.naukma.thesisbackend.enums.UserRole;
 import com.naukma.thesisbackend.exceptions.InvalidJwtException;
 import com.naukma.thesisbackend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +43,13 @@ public class AuthService implements UserDetailsService {
 
   }
 
-  public String getCurrentUserId(){
-    return SecurityContextHolder.getContext().getAuthentication().getName();
+  /**
+   * method for getting userId from security context
+   * @return userId or null if user is not authenticated
+   */
+  public @Nullable String getCurrentUserId(){
+    return SecurityContextHolder.getContext().getAuthentication().isAuthenticated()?
+            SecurityContextHolder.getContext().getAuthentication().getName()
+            :null;
   }
 }

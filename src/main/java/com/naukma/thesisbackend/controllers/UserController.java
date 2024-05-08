@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -155,14 +156,14 @@ public class UserController {
      * @return ids of liked posts
      */
     @GetMapping(value = "/{userId}/liked-posts")
-    public ResponseEntity<Set<PostDto>> getUserLikedPosts(@PathVariable String userId){
+    public ResponseEntity<List<PostDto>> getUserLikedPosts(@PathVariable String userId){
         Set<Post> likedPosts = userService.getLikedPostsByUserId(userId);
 
-        Set<PostDto> likedPostDtos = likedPosts
+        List<PostDto> likedPostDtos = likedPosts
                 .stream()
                 .sorted(Comparator.comparing(Post::getPostedDate).reversed())
                 .map(post->postService.postToPostDto(post, null, false))
-                .collect(Collectors.toSet());
+                .toList();
 
         return ResponseEntity.ok(likedPostDtos);
     }
