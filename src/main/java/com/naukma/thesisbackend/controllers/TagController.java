@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/tags")
 public class TagController {
 
-    private TagService tagService;
+    private final TagService tagService;
+
+    public TagController(TagService tagService) {
+        this.tagService = tagService;
+    }
 
     @GetMapping("/{tagId}")
     public ResponseEntity<Tag> getTag(@PathVariable("tagId") Long tagId){
