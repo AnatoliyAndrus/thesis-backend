@@ -1,15 +1,18 @@
 package com.naukma.thesisbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.naukma.thesisbackend.dtos.UserBasicInfoDto;
 import com.naukma.thesisbackend.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,37 +62,43 @@ public class User {
      * can be null
      */
     @Column(name = "avatar", nullable = true)
+    @JsonIgnore
     private String avatar;
 
     /**
      * password of user
      */
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
 
     /**
      * posts liked by user
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<PostLike> postLikes;
 
     /**
      * comments liked by user
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CommentLike> commentLikes;
+    @JsonIgnore
+    private Set<CommentLike> commentLikes = new HashSet<>();
 
     /**
      * posts which user is author of
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "postAuthor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Post> posts;
+    @JsonIgnore
+    private Set<Post> posts = new HashSet<>();
 
     /**
-     * posts which user is author of
+     * comments which user is author of
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentAuthor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comment> comments;
+    @JsonIgnore
+    private Set<Comment> comments = new HashSet<>();
 
 
     @Column(name = "registered_date")

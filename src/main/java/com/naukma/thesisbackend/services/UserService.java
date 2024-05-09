@@ -30,6 +30,11 @@ public class UserService {
                 findByUserId(userId);
     }
 
+    /**
+     * returns raw list of user's liked posts
+     * @param userId id of user
+     * @return liked posts
+     */
     public Set<Post> getLikedPostsByUserId(String userId){
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("No such user"));

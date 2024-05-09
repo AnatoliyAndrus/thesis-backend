@@ -1,15 +1,18 @@
+
 spring:
   h2:
     console.enabled: true
   application:
     name: thesis-backend
   datasource:
-    url: jdbc:h2:mem:mydb
-    username: sa
-    password: password
+    url: jdbc:h2:file:~/spring-boot-h2-db
+    username: u
+    password: p
     driverClassName: org.h2.Driver
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
 
 security:
   jwt:
@@ -17,4 +20,4 @@ security:
       secret-key: 1234
 
 custom:
-  avatar-directory: src/main/resources/static/avatars
+  avatar-directory: src/main/resources/static/images/avatars

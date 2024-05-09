@@ -1,5 +1,6 @@
 package com.naukma.thesisbackend.services;
 
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +38,10 @@ public class AvatarService {
      * @return image
      * @throws IOException in case of error in reading file as stream
      */
-    public byte[] getImage(String imageName) throws IOException {
+    public byte[] getImage(@Nullable String imageName) throws IOException {
+        //if there is no image, method will return standard image
+        if(imageName==null||imageName.isEmpty()) imageName = "no-avatar.png";
+
         Path filePath = Path.of(avatarDirectory, imageName);
 
         return Files.exists(filePath)?Files.readAllBytes(filePath):null;

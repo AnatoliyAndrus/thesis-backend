@@ -5,8 +5,8 @@ import com.naukma.thesisbackend.dtos.PostDto;
 import com.naukma.thesisbackend.dtos.PostRequestDto;
 import com.naukma.thesisbackend.entities.Post;
 import com.naukma.thesisbackend.entities.PostLike;
-import com.naukma.thesisbackend.entities.Tag;
 import com.naukma.thesisbackend.entities.User;
+import com.naukma.thesisbackend.entities.keys.PostLikeKey;
 import com.naukma.thesisbackend.exceptions.ForbiddenException;
 import com.naukma.thesisbackend.repositories.PostLikeRepository;
 import com.naukma.thesisbackend.repositories.PostRepository;
@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,17 +28,17 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
     private final TagRepository tagRepository;
     private final CommentService commentService;
 
     public PostService(
             PostRepository postRepository,
-            UserRepository userRepository, PostLikeRepository postLikeRepository, TagRepository tagRepository, CommentService commentService
+            PostLikeRepository postLikeRepository,
+            TagRepository tagRepository,
+            CommentService commentService
     ){
         this.postRepository = postRepository;
-        this.userRepository = userRepository;
         this.postLikeRepository = postLikeRepository;
         this.tagRepository = tagRepository;
         this.commentService = commentService;
@@ -53,7 +54,6 @@ public class PostService {
     public PostDto postToPostDto(Post post, @Nullable String userId, boolean comments){
 
         boolean isLiked = userId != null
-                && post.getPostLikes()!=null
                 && !userId.isEmpty() && (post
                 .getPostLikes()
                 .stream()
@@ -64,28 +64,29 @@ public class PostService {
                 post.getTitle(),
                 post.getContent(),
                 post.getPostedDate(),
-                post.getPostLikes()!=null?post.getPostLikes().size():0,
+                post.getPostLikes().size(),
                 comments?getPostCommentTree(post, userId):null,
                 isLiked,
                 post.getPostAuthor().getUserId(),
                 post.getPostAuthor().getNickname());
     }
 
-    /**
-     * method for converting post database comment list into {@link Set<CommentDto>} list for returning as response
-     * @param post post
-     * @param userId id of current user
-     * @return {@link Set<CommentDto>} list
-     */
-    public Set<CommentDto> getPostCommentTree(Post post, @Nullable String userId){
+
+    private Set<CommentDto> getPostCommentTree(Post post, @Nullable String userId){
         return post
                 .getComments()
                 .stream()
-                .filter(comment -> comment.getReplies()!=null)
+                .filter(comment -> comment.getReplies()!=null&&!comment.getReplies().isEmpty())
                 .map(comment -> commentService.commentToCommentDto(comment, userId))
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * method for converting post comments into {@link Set<CommentDto>} list for returning as response
+     * @param postId post id
+     * @param userId id of current user
+     * @return {@link Set<CommentDto>} list
+     */
     public Set<CommentDto> getPostCommentTree(Long postId, @Nullable String userId){
         Post post = postRepository.findPostByPostId(postId).orElseThrow(()-> new EntityNotFoundException("No such post"));
 
@@ -105,50 +106,73 @@ public class PostService {
     }
 
     /**
-     * method for querying several posts
-     * @param authorId id of author post, or its part
-     * @param tagIds ids
-     * @param minDate minimal date when posted
-     * @param maxDate maximal date when posted
+     * versatile method for querying posts by several parameters
+     *
+     * @param authorId id of post author
+     * @param tagIds tags of post
+     * @param minDate minimal date of post creation
+     * @param maxDate minimal date of post creation
      * @param title title of post
-     * @param sortByDate if posts should be sorted by date (otherwise they are sorted by amount of likes)
+     * @param sortBy column by which posts will be sorted, for example "
+     * @param sortDirection direction of sorting, can be "ASC" or "DESC"
      * @param page number of queried page
-     * @param size amount of posts on queried page
-     * @param userId id of current user (can be null)
-     * @return
+     * @param size size of page
+     * @param userId id of current user (for personalizing queried posts)
+     * @return page of posts
      */
     public Page<PostDto> getFilteredPosts(Long authorId,
-                                          List<Long> tagIds,
-                                          LocalDateTime minDate,
-                                          LocalDateTime maxDate,
-                                          String title,
-                                          boolean sortByDate,
-                                          int page,
-                                          int size,
+                                          @Nullable List<Long> tagIds,
+                                          @Nullable LocalDateTime minDate,
+                                          @Nullable LocalDateTime maxDate,
+                                          @Nullable String title,
+                                          @Nullable String sortBy,
+                                          @Nullable String sortDirection,
+                                          Integer page,
+                                          Integer size,
                                           @Nullable String userId
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findFilteredPosts(authorId, tagIds, minDate, maxDate, title,
-                sortByDate, pageable).map(post -> postToPostDto(post, userId, false));
+        //Setting up sorting and pagination
+        Sort.Order sortOrder = new Sort.Order(
+                (sortDirection==null||sortDirection.equalsIgnoreCase("DESC"))?Sort.Direction.DESC:Sort.Direction.ASC,
+                (sortBy==null)?"postedDate":sortBy);
+        Sort sort = Sort.by(sortOrder);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return postRepository.findFilteredPosts(authorId,
+                tagIds,
+                minDate,
+                maxDate,
+                title,
+                pageable
+        ).map(post -> postToPostDto(post, userId, false));
     }
 
-    public PostDto createPost(String userId, PostRequestDto postRequestDto) {
-        User author = userRepository.findByUserId(userId)
-                .orElseThrow(()->new ForbiddenException("No such user found"));
 
+    /**
+     * creating post of user
+     * @param author author of post
+     * @param postRequestDto post request
+     * @return created post as {@link PostDto} object
+     */
+    public PostDto createPost(User author, PostRequestDto postRequestDto) {
         Post post = new Post();
         post.setPostAuthor(author);
         post.setTitle(postRequestDto.title());
         post.setContent(postRequestDto.content());
         post.setTags(new HashSet<>(tagRepository.findAllById(postRequestDto.tags())));
 
-        return postToPostDto(postRepository.save(post), userId, false);
+        return postToPostDto(postRepository.save(post), author.getUserId(), false);
     }
 
+    /**
+     * updates post
+     * @param userId id of user
+     * @param postRequestDto updated post
+     * @param postId id of post
+     * @return updated post as {@link PostDto} object
+     */
     public PostDto updatePost(String userId, PostRequestDto postRequestDto, Long postId) {
-        User author = userRepository.findByUserId(userId)
-                .orElseThrow(()->new ForbiddenException("No such user found"));
-
         Post post = postRepository.findPostByPostId(postId)
                 .orElseThrow(()->new EntityNotFoundException("Post with this ID not found"));
 
@@ -163,9 +187,12 @@ public class PostService {
         return postToPostDto(postRepository.save(post), userId, false);
     }
 
-
+    /**
+     * deletes post. throws exception if post doesn't belong to person
+     * @param userId id of user
+     * @param postId id of post
+     */
     public void deletePost(String userId, Long postId) {
-
         Post post = postRepository.findPostByPostId(postId)
                 .orElseThrow(()->new EntityNotFoundException("Post with this ID not found"));
 
@@ -177,10 +204,13 @@ public class PostService {
                 .delete(post);
     }
 
-    public boolean toggleLike(String userId, Long postId){
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
+    /**
+     * method for setting/removing like under the post
+     * @param user current user id, needed for checking if post belongs to current user
+     * @param postId id of post
+     * @return true if post is now liked, false otherwise
+     */
+    public boolean toggleLike(User user, Long postId){
         Post post = postRepository
                 .findPostByPostId(postId)
                 .orElseThrow(() -> new EntityNotFoundException("No such post"));
@@ -194,11 +224,17 @@ public class PostService {
         }
         else{
             PostLike newPostLike = new PostLike(user, post);
+            newPostLike.setId(new PostLikeKey());
             postLikeRepository.save(newPostLike);
             return true;
         }
     }
 
+    /**
+     * gets post from database
+     * @param postId id of post
+     * @return requested post
+     */
     public Optional<Post> getPostById(Long postId){
         return postRepository.findPostByPostId(postId);
     }

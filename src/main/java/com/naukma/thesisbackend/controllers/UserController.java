@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping("/{userId}/avatar")
     public ResponseEntity<Resource> getUserAvatar(@PathVariable String userId) throws IOException {
         String avatar = userService.getUserById(userId)
-                .orElseThrow(()-> new EntityNotFoundException("No such user"))
+                .orElseThrow(()-> new EntityNotFoundException("User not found"))
                 .getAvatar();
 
         byte[] imageBytes = avatarService.getImage(avatar);
@@ -69,11 +69,11 @@ public class UserController {
      */
     @PostMapping("/{userId}/avatar")
     public ResponseEntity<?> saveOrUpdateUserAvatar(@PathVariable String userId, @RequestParam("avatar") MultipartFile avatarFile) throws IOException {
-        if(avatarFile == null){
-            return ResponseEntity.badRequest().body("Image file required");
+        if(avatarFile == null || avatarFile.getContentType() == null){
+            return ResponseEntity.badRequest().body("Invalid input file");
         }
-        if (avatarFile.getContentType().startsWith("image/")) {
-            return ResponseEntity.badRequest().body("Only image files are allowed");
+        if (!avatarFile.getContentType().startsWith("image/")) {
+            return ResponseEntity.badRequest().body("Only image files are allowed, got "+avatarFile.getContentType());
         }
 
         User user = userService
@@ -109,7 +109,7 @@ public class UserController {
                 .orElseThrow(()-> new EntityNotFoundException("No such user"));
 
         //if user already had avatar, it is deleted from file system
-        if(user.getAvatar()==null){
+        if(user.getAvatar()!=null){
             avatarService.deleteImage(user.getAvatar());
             user.setAvatar(null);
             userService.save(user);
@@ -135,17 +135,18 @@ public class UserController {
     }
 
     /**
-     * method for getting email of user
-     * email is sensitive information, so method can be accessed only by the user, who has same userId as specified in path
+     * method for getting personal information of user
+     * this is sensitive information, can be accessed only by user
      * @param userId id of user
      * @return String value of email
      */
-    @GetMapping(value = "/{userId}/email", produces = "text/plain")
-    public String getUserEmail(@PathVariable String userId){
-        return userService
+    @GetMapping(value = "/{userId}/profile")
+    public ResponseEntity<User> getUserProfile(@PathVariable String userId){
+        User user = userService
                 .getUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("No such user"))
-                .getEmail();
+                .orElseThrow(() -> new EntityNotFoundException("No such user"));
+
+        return ResponseEntity.ok(user);
     }
 
     /**

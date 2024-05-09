@@ -5,6 +5,9 @@ import com.naukma.thesisbackend.repositories.TagRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 public class TagService {
 
@@ -14,6 +17,10 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
+    public List<Tag> getAllTags(){
+        return tagRepository
+                .findAll();
+    }
     public Tag get(Long tagId){
         return tagRepository
                 .findTagByTagId(tagId)

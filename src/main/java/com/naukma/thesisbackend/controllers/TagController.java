@@ -5,6 +5,9 @@ import com.naukma.thesisbackend.services.TagService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/v1/tags")
 public class TagController {
@@ -13,6 +16,13 @@ public class TagController {
 
     public TagController(TagService tagService) {
         this.tagService = tagService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Tag>> getAllTags(){
+        return ResponseEntity.ok(
+                tagService.getAllTags()
+        );
     }
 
     @GetMapping("/{tagId}")

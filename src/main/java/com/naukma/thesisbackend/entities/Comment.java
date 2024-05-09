@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -35,7 +36,7 @@ public class Comment {
     private Post post;
 
     @OneToMany(mappedBy = "comment", orphanRemoval = true)
-    private Set<CommentLike> commentLikes;
+    private Set<CommentLike> commentLikes = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "comment_id", nullable = true)
@@ -43,7 +44,7 @@ public class Comment {
     private Comment replyTo;
 
     @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comment> replies;
+    private Set<Comment> replies = new HashSet<>();
 
 
     /**

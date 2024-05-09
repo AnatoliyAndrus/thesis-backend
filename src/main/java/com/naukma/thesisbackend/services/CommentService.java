@@ -2,11 +2,12 @@ package com.naukma.thesisbackend.services;
 
 import com.naukma.thesisbackend.dtos.CommentDto;
 import com.naukma.thesisbackend.entities.*;
+import com.naukma.thesisbackend.entities.keys.CommentLikeKey;
 import com.naukma.thesisbackend.exceptions.ForbiddenException;
 import com.naukma.thesisbackend.repositories.CommentLikeRepository;
 import com.naukma.thesisbackend.repositories.CommentRepository;
-import com.naukma.thesisbackend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -19,23 +20,22 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final CommentLikeRepository commentLikeRepository;
 
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository, CommentLikeRepository commentLikeRepository){
+    public CommentService(CommentRepository commentRepository,
+                          CommentLikeRepository commentLikeRepository){
         this.commentRepository = commentRepository;
-
-        this.userRepository = userRepository;
         this.commentLikeRepository = commentLikeRepository;
     }
 
     /**
      * recursively maps comment object to commentDto object
      * @param comment comment entity object
-     * @param userId id of currently registered user (for getting likes of user)
-     * @return
+     * @param userId id of currently registered user (for personalized response)
+     * @return Comment Dto
      */
-    public CommentDto commentToCommentDto(Comment comment, String userId){
+    public CommentDto commentToCommentDto(Comment comment,
+                                          @Nullable String userId){
 
         Set<CommentDto> replies = new HashSet<>();
         if(comment.getReplies()!=null&&!comment.getReplies().isEmpty()){
@@ -61,7 +61,6 @@ public class CommentService {
                 comment.getCommentLikes().size(),
                 isLiked
                 );
-
     }
 
 
@@ -83,31 +82,21 @@ public class CommentService {
         return commentToCommentDto(commentRepository.save(comment), null);
     }
 
+    /**
+     * deletes comment from database
+     * @param comment comment to delete
+     */
     public void delete(Comment comment){
         commentRepository.delete(comment);
     }
 
     /**
-     * verifies if comment with this id belongs to user
+     * sets/removes like from comment
+     * @param user user who performs this operation
      * @param commentId id of comment
-     * @param userId id of user
-     * @return verified comment
+     * @return true if comment is now liked, false otherwise
      */
-    public Comment verifyCommentOwnership(Long commentId, String userId) {
-        Comment comment = getCommentById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("No such comment found"));
-
-        if (!Objects.equals(comment.getCommentAuthor().getUserId(), userId)) {
-            throw new ForbiddenException("User must be the author of the comment to delete it");
-        }
-        return comment;
-    }
-
-    public boolean toggleLike(String userId, Long commentId){
-        User user = userRepository
-                .findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
+    public boolean toggleLike(User user, Long commentId){
         Comment comment = commentRepository
                 .findCommentByCommentId(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
@@ -121,8 +110,24 @@ public class CommentService {
         }
         else{
             CommentLike newCommentLike = new CommentLike(user, comment);
+            newCommentLike.setId(new CommentLikeKey());
             commentLikeRepository.save(newCommentLike);
             return true;
         }
+    }
+
+    /**
+     * verifies if comment with this id belongs to user adn returns this comment
+     * @param commentId id of comment
+     * @param userId id of user
+     * @return verified comment
+     */
+    public Comment verifyCommentOwnership(Long commentId, String userId) {
+        Comment comment = getCommentById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("No such comment found"));
+        if (!Objects.equals(comment.getCommentAuthor().getUserId(), userId)) {
+            throw new ForbiddenException("User must be the author of the comment to delete it");
+        }
+        return comment;
     }
 }

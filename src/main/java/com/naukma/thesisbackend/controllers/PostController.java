@@ -7,6 +7,7 @@ import com.naukma.thesisbackend.dtos.PostRequestDto;
 import com.naukma.thesisbackend.entities.Comment;
 import com.naukma.thesisbackend.entities.Post;
 import com.naukma.thesisbackend.entities.User;
+import com.naukma.thesisbackend.exceptions.ForbiddenException;
 import com.naukma.thesisbackend.services.AuthService;
 import com.naukma.thesisbackend.services.CommentService;
 import com.naukma.thesisbackend.services.PostService;
@@ -50,13 +51,14 @@ public class PostController {
                                                        @RequestParam(required = false) LocalDateTime minDate,
                                                        @RequestParam(required = false) LocalDateTime maxDate,
                                                        @RequestParam(required = false) String title,
-                                                       @RequestParam(required = false, defaultValue = "false") Boolean sortByLikes,
-                                                       @RequestParam(defaultValue = "0") int page,
-                                                       @RequestParam(defaultValue = "10") int size) {
+                                                       @RequestParam(defaultValue = "postedDate") String sortBy,
+                                                       @RequestParam(defaultValue = "DESC") String sortDirection,
+                                                       @RequestParam(defaultValue = "0") Integer page,
+                                                       @RequestParam(defaultValue = "10") Integer size) {
 
         String userId = authService.getCurrentUserId();
         Page<PostDto> posts = postService.getFilteredPosts(authorId, tagIds, minDate, maxDate, title,
-                sortByLikes, page, size, userId);
+                sortBy, sortDirection, page, size, userId);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
@@ -69,7 +71,10 @@ public class PostController {
     public ResponseEntity<PostDto> createPost(@RequestBody PostRequestDto postRequestDto){
         String userId = authService.getCurrentUserId();
 
-        PostDto postDto = postService.createPost(userId, postRequestDto);
+        User author = userService.getUserById(userId)
+                .orElseThrow(()->new ForbiddenException("User not found"));
+
+        PostDto postDto = postService.createPost(author, postRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(postDto);
     }
 
@@ -106,7 +111,10 @@ public class PostController {
     public ResponseEntity<?> toggleLike(@PathVariable("postId") Long postId){
         String userId = authService.getCurrentUserId();
 
-        boolean isLiked = postService.toggleLike(userId, postId);
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        boolean isLiked = postService.toggleLike(user, postId);
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("isLiked", isLiked);

@@ -5,9 +5,7 @@ import com.naukma.thesisbackend.entities.User;
 import com.naukma.thesisbackend.enums.UserRole;
 import com.naukma.thesisbackend.exceptions.InvalidJwtException;
 import com.naukma.thesisbackend.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,8 +16,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService implements UserDetailsService {
 
-  @Autowired
-  UserRepository repository;
+
+  private final UserRepository repository;
+
+  public AuthService(UserRepository repository) {
+    this.repository = repository;
+  }
 
   @Override
   public UserDetails loadUserByUsername(String username) {
@@ -28,16 +30,19 @@ public class AuthService implements UserDetailsService {
     return new CustomUserDetails(user);
   }
 
-  public User signUp(SignUpDto data) throws InvalidJwtException {
+  /**
+   * method for signing user up
+   * @param signUpDto user sign up request
+   * @return saved user
+   * @throws InvalidJwtException if the user with such userId as in request already exists
+   */
+  public User signUp(SignUpDto signUpDto) throws InvalidJwtException {
 
-    if (repository.findByUserId(data.userId()).isPresent()) {
-      throw new InvalidJwtException("Username already exists");
-    }
+    if (repository.findByUserId(signUpDto.userId()).isPresent()) throw new InvalidJwtException("User with such userId already exists");
 
-    String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+    String encryptedPassword = new BCryptPasswordEncoder().encode(signUpDto.password());
 
-    //By default, the user is created with "User" role
-    User user = new User(data.userId(), data.nickname(), data.email(), encryptedPassword, UserRole.USER);
+    User user = new User(signUpDto.userId(), signUpDto.nickname(), signUpDto.email(), encryptedPassword, UserRole.ADMIN);
 
     return repository.save(user);
 

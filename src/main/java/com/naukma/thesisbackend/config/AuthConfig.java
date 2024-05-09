@@ -1,7 +1,6 @@
 package com.naukma.thesisbackend.config;
 
 import com.naukma.thesisbackend.auth.SecurityFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,8 +18,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class AuthConfig {
-    @Autowired
-    SecurityFilter securityFilter;
+
+    private final SecurityFilter securityFilter;
+
+    public AuthConfig(SecurityFilter securityFilter) {
+        this.securityFilter = securityFilter;
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -34,7 +37,7 @@ public class AuthConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/h2-console**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/*", "/api/v1/users/{userId}/posts", "api/v1/users/{userId}/avatar").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}/email", "/api/v1/users/{userId}/liked-posts").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}/profile", "/api/v1/users/{userId}/liked-posts").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/{userId}/avatar").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "api/v1/users/{userId}/avatar").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
 
