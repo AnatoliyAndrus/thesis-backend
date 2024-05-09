@@ -168,5 +168,17 @@ public class UserController {
         return ResponseEntity.ok(likedPostDtos);
     }
 
+    /**
+     * deletes user by userId
+     * can be accessed only by user with such id or admin
+     * @param userId id of user to delete
+     * @return ok response
+     */
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable("userId") String userId){
+        userService.delete(userId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }
