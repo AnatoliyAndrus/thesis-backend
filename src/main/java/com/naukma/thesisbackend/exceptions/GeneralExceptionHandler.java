@@ -14,59 +14,38 @@ import java.util.Map;
 @RestControllerAdvice
 public class GeneralExceptionHandler {
   @ExceptionHandler(Exception.class)
-  public final ResponseEntity<Map<String, List<String>>> handleGeneralExceptions(Exception ex) {
-    List<String> errors = List.of(ex.getMessage());
-
-    return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(errorsMap(errors));
+  public final ResponseEntity<String> handleGeneralExceptions(Exception ex) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
   }
 
   @ExceptionHandler(RuntimeException.class)
-  public final ResponseEntity<Map<String, List<String>>> handleRuntimeExceptions(RuntimeException ex) {
-    List<String> errors = List.of(ex.getMessage());
-
-    return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(errorsMap(errors));
+  public final ResponseEntity<String> handleRuntimeExceptions(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
   }
 
   @ExceptionHandler(InvalidJwtException.class)
-  public ResponseEntity<Map<String, List<String>>> handleJwtErrors(InvalidJwtException ex) {
-
-    List<String> errors = List.of(ex.getMessage());
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorsMap(errors));
+  public ResponseEntity<String> handleJwtErrors(InvalidJwtException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }
 
   @ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<Map<String, List<String>>> handleBadCredentialsError(BadCredentialsException ex) {
-
-    List<String> errors = List.of(ex.getMessage());
-
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorsMap(errors));
+  public ResponseEntity<String> handleBadCredentialsError(BadCredentialsException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
   }
 
   @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<Map<String, List<String>>> handleEntityNotFoundException(EntityNotFoundException ex) {
-
-    List<String> errors = List.of(ex.getMessage());
-
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorsMap(errors));
+  public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 
   @ExceptionHandler(ForbiddenException.class)
-  public ResponseEntity<Map<String, List<String>>> handleForbiddenException(ForbiddenException ex) {
-
-    List<String> errors = List.of(ex.getMessage());
-
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorsMap(errors));
+  public ResponseEntity<String> handleForbiddenException(ForbiddenException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
   }
 
-  private Map<String, List<String>> errorsMap(List<String> errors) {
-    Map<String, List<String>> errorResponse = new HashMap<>();
-    errorResponse.put("errors", errors);
-    return errorResponse;
+  @ExceptionHandler(EntityAlreadyExistsException.class)
+  public ResponseEntity<String> handleEntityAlreadyExistsException(EntityAlreadyExistsException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
   }
 
 }

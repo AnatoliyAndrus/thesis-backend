@@ -53,7 +53,7 @@ public class AuthService implements UserDetailsService {
    * @return userId or null if user is not authenticated
    */
   public @Nullable String getCurrentUserId(){
-    return SecurityContextHolder.getContext().getAuthentication().isAuthenticated()?
+    return SecurityContextHolder.getContext().getAuthentication().isAuthenticated()&&SecurityContextHolder.getContext().getAuthentication().getName()!="anonymousUser"?
             SecurityContextHolder.getContext().getAuthentication().getName()
             :null;
   }

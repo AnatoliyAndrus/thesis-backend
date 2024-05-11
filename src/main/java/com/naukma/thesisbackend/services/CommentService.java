@@ -59,7 +59,8 @@ public class CommentService {
                 comment.isEdited(),
                 replies,
                 comment.getCommentLikes().size(),
-                isLiked
+                isLiked,
+                comment.getCommentedDate()
                 );
     }
 

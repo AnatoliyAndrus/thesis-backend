@@ -24,8 +24,29 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "AND (:tagIds IS NULL OR t.tagId IN :tagIds) " +
             "AND (:minDate IS NULL OR p.postedDate >= :minDate) " +
             "AND (:maxDate IS NULL OR p.postedDate <= :maxDate) " +
-            "AND (:title IS NULL OR p.title LIKE %:title%) ")
-    Page<Post> findFilteredPosts(@Param("authorId") Long authorId,
+            "AND (:title IS NULL OR p.title LIKE %:title%)")
+    Page<Post> findFilteredPosts(@Param("authorId") String authorId,
+                                 @Param("tagIds") List<Long> tagIds,
+                                 @Param("minDate") LocalDateTime minDate,
+                                 @Param("maxDate") LocalDateTime maxDate,
+                                 @Param("title") String title,
+                                 Pageable pageable);
+
+
+    /**
+     * the same query as the one above, but for case when posts have to be sorted by likes
+     */
+    @Query("SELECT DISTINCT p, COUNT(pl) FROM Post p " +
+            "LEFT JOIN p.postLikes pl " +
+            "LEFT JOIN p.tags t " +
+            "WHERE (:authorId IS NULL OR p.postAuthor.userId LIKE %:authorId%) " +
+            "AND (:tagIds IS NULL OR t.tagId IN :tagIds) " +
+            "AND (:minDate IS NULL OR p.postedDate >= :minDate) " +
+            "AND (:maxDate IS NULL OR p.postedDate <= :maxDate) " +
+            "AND (:title IS NULL OR p.title LIKE %:title%)" +
+            "GROUP BY p.postId " +
+            "ORDER BY COUNT(pl)")
+    Page<Object[]> findFilteredPostsSortByLikes(@Param("authorId") String authorId,
                                  @Param("tagIds") List<Long> tagIds,
                                  @Param("minDate") LocalDateTime minDate,
                                  @Param("maxDate") LocalDateTime maxDate,

@@ -45,8 +45,11 @@ public class PostController {
         return ResponseEntity.ok().body(post);
     }
 
+    /**
+     * versatile endpoint for getting paginated and sorted posts.
+     */
     @GetMapping
-    public ResponseEntity<Page<PostDto>> getFilteredPosts(@RequestParam(required = false) Long authorId,
+    public ResponseEntity<Page<PostDto>> getFilteredPosts(@RequestParam(required = false) String authorId,
                                                        @RequestParam(required = false) List<Long> tagIds,
                                                        @RequestParam(required = false) LocalDateTime minDate,
                                                        @RequestParam(required = false) LocalDateTime maxDate,

@@ -1,5 +1,8 @@
 package com.naukma.thesisbackend.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public record CommentDto(
@@ -10,6 +13,8 @@ public record CommentDto(
     boolean edited,
     Set<CommentDto> replies,
     int likes,
-    boolean isLiked
+    boolean isLiked,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    LocalDateTime commentedDate
 ) {
 }

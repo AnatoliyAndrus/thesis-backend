@@ -25,7 +25,7 @@ public class Tag {
     /**
      * string representation of tag
      */
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     /**

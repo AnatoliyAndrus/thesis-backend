@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
+    Optional<Tag> findTagByNameIgnoreCase(String name);
     Optional<Tag> findTagByTagId(Long tagId);
 
 

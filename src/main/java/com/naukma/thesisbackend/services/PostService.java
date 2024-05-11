@@ -68,7 +68,8 @@ public class PostService {
                 comments?getPostCommentTree(post, userId):null,
                 isLiked,
                 post.getPostAuthor().getUserId(),
-                post.getPostAuthor().getNickname());
+                post.getPostAuthor().getNickname(),
+                post.getTags());
     }
 
 
@@ -120,7 +121,7 @@ public class PostService {
      * @param userId id of current user (for personalizing queried posts)
      * @return page of posts
      */
-    public Page<PostDto> getFilteredPosts(Long authorId,
+    public Page<PostDto> getFilteredPosts(String authorId,
                                           @Nullable List<Long> tagIds,
                                           @Nullable LocalDateTime minDate,
                                           @Nullable LocalDateTime maxDate,
@@ -132,20 +133,24 @@ public class PostService {
                                           @Nullable String userId
     ) {
         //Setting up sorting and pagination
-        Sort.Order sortOrder = new Sort.Order(
-                (sortDirection==null||sortDirection.equalsIgnoreCase("DESC"))?Sort.Direction.DESC:Sort.Direction.ASC,
-                (sortBy==null)?"postedDate":sortBy);
-        Sort sort = Sort.by(sortOrder);
+        Pageable pageable;
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        if(!Objects.equals(sortBy, "likes")) {
+            Sort.Order sortOrder = new Sort.Order(
+                    (sortDirection == null || sortDirection.equalsIgnoreCase("DESC")) ? Sort.Direction.DESC : Sort.Direction.ASC,
+                    (sortBy == null) ? "postedDate" : sortBy);
+            pageable = PageRequest.of(page, size, Sort.by(sortOrder));
 
-        return postRepository.findFilteredPosts(authorId,
-                tagIds,
-                minDate,
-                maxDate,
-                title,
-                pageable
-        ).map(post -> postToPostDto(post, userId, false));
+            return postRepository
+                    .findFilteredPosts(authorId, tagIds, minDate, maxDate, title, pageable)
+                    .map(post -> postToPostDto(post, userId, false));
+        }
+        else {
+            pageable = PageRequest.of(page, size);
+            return postRepository
+                    .findFilteredPostsSortByLikes(authorId, tagIds, minDate, maxDate, title, pageable)
+                    .map(objectList -> postToPostDto((Post)objectList[0], userId, false));
+        }
     }
 
 

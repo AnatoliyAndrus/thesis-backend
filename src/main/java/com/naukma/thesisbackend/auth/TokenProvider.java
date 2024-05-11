@@ -24,7 +24,7 @@ public class TokenProvider {
             return JWT.create()
                     .withSubject(user.getUsername())
                     .withClaim("username", user.getUsername())
-                    .withExpiresAt(genAccessExpirationDate())
+                    .withExpiresAt(generateAccessExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new JWTCreationException("Error while generating token", exception);
@@ -48,7 +48,7 @@ public class TokenProvider {
         }
     }
 
-    private Instant genAccessExpirationDate() {
+    private Instant generateAccessExpirationDate() {
         return LocalDateTime.now().plusDays(2).toInstant(ZoneOffset.of("+03:00"));
     }
 }
