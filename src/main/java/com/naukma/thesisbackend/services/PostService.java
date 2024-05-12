@@ -77,7 +77,7 @@ public class PostService {
         return post
                 .getComments()
                 .stream()
-                .filter(comment -> comment.getReplies()!=null&&!comment.getReplies().isEmpty())
+                .filter(comment -> comment.getReplyTo()==null)
                 .map(comment -> commentService.commentToCommentDto(comment, userId))
                 .collect(Collectors.toSet());
     }

@@ -7,6 +7,7 @@ import com.naukma.thesisbackend.dtos.PostRequestDto;
 import com.naukma.thesisbackend.entities.Comment;
 import com.naukma.thesisbackend.entities.Post;
 import com.naukma.thesisbackend.entities.User;
+import com.naukma.thesisbackend.exceptions.AuthenticationFailedException;
 import com.naukma.thesisbackend.exceptions.ForbiddenException;
 import com.naukma.thesisbackend.services.AuthService;
 import com.naukma.thesisbackend.services.CommentService;
@@ -75,7 +76,7 @@ public class PostController {
         String userId = authService.getCurrentUserId();
 
         User author = userService.getUserById(userId)
-                .orElseThrow(()->new ForbiddenException("User not found"));
+                .orElseThrow(()->new AuthenticationFailedException("User not found"));
 
         PostDto postDto = postService.createPost(author, postRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(postDto);

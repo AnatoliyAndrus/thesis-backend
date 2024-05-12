@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public record CommentDto(
-    Long commendId,
+    Long commentId,
     String content,
     String authorUserId,
     String authorNickname,

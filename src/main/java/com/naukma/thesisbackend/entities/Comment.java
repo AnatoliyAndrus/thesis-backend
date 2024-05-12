@@ -22,7 +22,7 @@ public class Comment {
     @Column(name = "comment_id")
     private Long commentId;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "commented_date")
@@ -61,13 +61,4 @@ public class Comment {
     @Column(name = "edited")
     private boolean edited = false;
 
-
-    /**
-     * listener which toggles {@link #edited edited} field to true if comment is updated
-     */
-    @PrePersist
-    @PreUpdate
-    public void beforeSave() {
-        this.edited = true;
-    }
 }

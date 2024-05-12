@@ -59,6 +59,7 @@ public class CommentController {
         String userId = authService.getCurrentUserId();
 
         Comment comment = commentService.verifyCommentOwnership(commentId, userId);
+        comment.setEdited(true);
 
         CommentDto updatedComment = commentService.save(comment);
         return ResponseEntity

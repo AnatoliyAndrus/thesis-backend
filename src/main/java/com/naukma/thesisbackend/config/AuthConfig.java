@@ -36,19 +36,20 @@ public class AuthConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/h2-console**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/profile").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/{userId}/avatar").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/*", "/api/v1/users/{userId}/posts", "api/v1/users/{userId}/avatar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}/profile", "/api/v1/users/{userId}/liked-posts").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users/{userId}/avatar").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "api/v1/users/{userId}/avatar", "api/v1/users/{userId}").access(new WebExpressionAuthorizationManager("hasRole('ROLE_ADMIN') or #userId == authentication.name"))
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").authenticated()
-                        .requestMatchers("api/v1/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("api/v1/posts/**").hasAnyRole("USER", "ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "api/v1/comments/**").permitAll()
-                        .requestMatchers("api/v1/comments/**").authenticated()
+                        .requestMatchers("api/v1/comments/**").hasAnyRole("USER", "ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
                         .requestMatchers("/api/v1/tags/**").hasRole("ADMIN")

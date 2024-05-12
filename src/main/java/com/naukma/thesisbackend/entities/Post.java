@@ -32,7 +32,8 @@ public class Post {
     /**
      * text content of post
      */
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+
     private String content;
 
     @Column(name = "posted_date")

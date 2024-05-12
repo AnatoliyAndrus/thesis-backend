@@ -3,13 +3,9 @@ package com.naukma.thesisbackend.exceptions;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GeneralExceptionHandler {
@@ -28,8 +24,8 @@ public class GeneralExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }
 
-  @ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<String> handleBadCredentialsError(BadCredentialsException ex) {
+  @ExceptionHandler(AuthenticationFailedException.class)
+  public ResponseEntity<String> handleAuthenticationFailedException(AuthenticationFailedException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
   }
 
@@ -45,7 +41,7 @@ public class GeneralExceptionHandler {
 
   @ExceptionHandler(EntityAlreadyExistsException.class)
   public ResponseEntity<String> handleEntityAlreadyExistsException(EntityAlreadyExistsException ex) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }
 
 }

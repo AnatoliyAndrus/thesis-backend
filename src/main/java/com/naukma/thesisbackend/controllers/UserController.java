@@ -4,6 +4,8 @@ import com.naukma.thesisbackend.dtos.PostDto;
 import com.naukma.thesisbackend.dtos.UserBasicInfoDto;
 import com.naukma.thesisbackend.entities.Post;
 import com.naukma.thesisbackend.entities.User;
+import com.naukma.thesisbackend.exceptions.AuthenticationFailedException;
+import com.naukma.thesisbackend.services.AuthService;
 import com.naukma.thesisbackend.services.AvatarService;
 import com.naukma.thesisbackend.services.PostService;
 import com.naukma.thesisbackend.services.UserService;
@@ -28,12 +30,14 @@ public class UserController {
     private final AvatarService avatarService;
     private final UserService userService;
     private final PostService postService;
+    private final AuthService authService;
 
 
-    public UserController(AvatarService avatarService, UserService userService, PostService postService){
+    public UserController(AvatarService avatarService, UserService userService, PostService postService, AuthService authService){
         this.avatarService = avatarService;
         this.userService = userService;
         this.postService = postService;
+        this.authService = authService;
     }
 
     /**
@@ -142,6 +146,21 @@ public class UserController {
      */
     @GetMapping(value = "/{userId}/profile")
     public ResponseEntity<User> getUserProfile(@PathVariable String userId){
+        User user = userService
+                .getUserById(userId)
+                .orElseThrow(() -> new AuthenticationFailedException("User not found"));
+
+        return ResponseEntity.ok(user);
+    }
+
+    /**
+     * gets info of user by info from his auth token
+     * @return
+     */
+    @GetMapping(value = "/profile")
+    public ResponseEntity<User> getUserOwnInfo(){
+        String userId = authService.getCurrentUserId();
+
         User user = userService
                 .getUserById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("No such user"));
