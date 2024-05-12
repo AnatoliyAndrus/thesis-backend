@@ -181,10 +181,23 @@ public class UserController {
         List<PostDto> likedPostDtos = likedPosts
                 .stream()
                 .sorted(Comparator.comparing(Post::getPostedDate).reversed())
-                .map(post->postService.postToPostDto(post, null, false))
+                .map(post->postService.postToPostDto(post, userId, false))
                 .toList();
 
         return ResponseEntity.ok(likedPostDtos);
+    }
+
+    @GetMapping(value = "/{userId}/posts")
+    public ResponseEntity<List<PostDto>> getPostsAuthoredBy(@PathVariable String userId){
+        List<Post> posts = userService.getPostsAuthoredBy(userId);
+
+        List<PostDto> postDtos = posts
+                .stream()
+                .sorted(Comparator.comparing(Post::getPostedDate).reversed())
+                .map(post->postService.postToPostDto(post, userId, false))
+                .toList();
+
+        return ResponseEntity.ok(postDtos);
     }
 
     /**

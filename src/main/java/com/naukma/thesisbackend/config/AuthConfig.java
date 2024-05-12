@@ -37,7 +37,7 @@ public class AuthConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/h2-console**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/profile").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users/{userId}/avatar").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/{userId}/avatar").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/*", "/api/v1/users/{userId}/posts", "api/v1/users/{userId}/avatar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/{userId}/profile", "/api/v1/users/{userId}/liked-posts").access(new WebExpressionAuthorizationManager("#userId == authentication.name"))
                         .requestMatchers(HttpMethod.DELETE, "api/v1/users/{userId}/avatar", "api/v1/users/{userId}").access(new WebExpressionAuthorizationManager("hasRole('ROLE_ADMIN') or #userId == authentication.name"))

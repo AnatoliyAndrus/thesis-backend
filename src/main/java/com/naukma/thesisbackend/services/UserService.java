@@ -47,6 +47,13 @@ public class UserService {
                 .toList();
     }
 
+    public List<Post> getPostsAuthoredBy(String userId){
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("No such user"));
+
+        return user.getPosts();
+    }
+
     public User save(User user){
         return userRepository.save(user);
     }
