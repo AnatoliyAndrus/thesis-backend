@@ -5,8 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Tag of post. Each post can have several tags
@@ -33,5 +34,5 @@ public class Tag {
      */
     @JsonIgnore
     @ManyToMany(mappedBy = "tags")
-    private Set<Post> posts = new HashSet<>();
+    private List<Post> posts = new ArrayList<>();
 }

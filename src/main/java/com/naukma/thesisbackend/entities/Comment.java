@@ -1,15 +1,15 @@
 package com.naukma.thesisbackend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -36,7 +36,7 @@ public class Comment {
     private Post post;
 
     @OneToMany(mappedBy = "comment", orphanRemoval = true)
-    private Set<CommentLike> commentLikes = new HashSet<>();
+    private List<CommentLike> commentLikes = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "comment_id", nullable = true)
@@ -44,7 +44,7 @@ public class Comment {
     private Comment replyTo;
 
     @OneToMany(mappedBy = "replyTo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comment> replies = new HashSet<>();
+    private List<Comment> replies = new ArrayList<>();
 
 
     /**

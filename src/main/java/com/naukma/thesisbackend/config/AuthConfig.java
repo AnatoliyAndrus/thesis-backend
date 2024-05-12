@@ -43,7 +43,7 @@ public class AuthConfig {
                         .requestMatchers(HttpMethod.DELETE, "api/v1/users/{userId}/avatar", "api/v1/users/{userId}").access(new WebExpressionAuthorizationManager("hasRole('ROLE_ADMIN') or #userId == authentication.name"))
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts", "api/v1/posts/{postId}/comments**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("api/v1/posts/**").hasAnyRole("USER", "ADMIN")

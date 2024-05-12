@@ -12,7 +12,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,28 +78,28 @@ public class User {
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<PostLike> postLikes;
+    private List<PostLike> postLikes = new ArrayList<>();
 
     /**
      * comments liked by user
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<CommentLike> commentLikes = new HashSet<>();
+    private List<CommentLike> commentLikes = new ArrayList<>();
 
     /**
      * posts which user is author of
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "postAuthor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Post> posts = new HashSet<>();
+    private List<Post> posts = new ArrayList<>();
 
     /**
      * comments which user is author of
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "commentAuthor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Comment> comments = new HashSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
 
     @Column(name = "registered_date")
@@ -113,7 +114,7 @@ public class User {
         return new UserBasicInfoDto(
                 this.getUserId(),
                 this.getNickname(),
-                this.getPosts().stream().map(Post::getPostId).collect(Collectors.toSet()),
+                this.getPosts().stream().map(Post::getPostId).toList(),
                 this.getRegisteredDate()
         );
     }

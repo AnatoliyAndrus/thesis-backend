@@ -7,6 +7,7 @@ import com.naukma.thesisbackend.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class UserService {
      * @param userId id of user
      * @return liked posts
      */
-    public Set<Post> getLikedPostsByUserId(String userId){
+    public List<Post> getLikedPostsByUserId(String userId){
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("No such user"));
 
@@ -43,7 +44,7 @@ public class UserService {
                 getPostLikes()
                 .stream()
                 .map(PostLike::getPost)
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     public User save(User user){

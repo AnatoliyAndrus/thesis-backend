@@ -176,7 +176,7 @@ public class UserController {
      */
     @GetMapping(value = "/{userId}/liked-posts")
     public ResponseEntity<List<PostDto>> getUserLikedPosts(@PathVariable String userId){
-        Set<Post> likedPosts = userService.getLikedPostsByUserId(userId);
+        List<Post> likedPosts = userService.getLikedPostsByUserId(userId);
 
         List<PostDto> likedPostDtos = likedPosts
                 .stream()

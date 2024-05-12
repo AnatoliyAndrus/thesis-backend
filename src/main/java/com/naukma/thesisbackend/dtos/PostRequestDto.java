@@ -1,6 +1,7 @@
 package com.naukma.thesisbackend.dtos;
 
-import java.util.Set;
+
+import java.util.List;
 
 /**
  * Simple post DTO made for POST and UPDATE methods on posts
@@ -11,6 +12,6 @@ import java.util.Set;
 public record PostRequestDto(
         String title,
         String content,
-        Set<Long> tags
+        List<Long> tags
 ) {
 }

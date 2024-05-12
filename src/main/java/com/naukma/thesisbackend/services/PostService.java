@@ -3,6 +3,7 @@ package com.naukma.thesisbackend.services;
 import com.naukma.thesisbackend.dtos.CommentDto;
 import com.naukma.thesisbackend.dtos.PostDto;
 import com.naukma.thesisbackend.dtos.PostRequestDto;
+import com.naukma.thesisbackend.entities.Comment;
 import com.naukma.thesisbackend.entities.Post;
 import com.naukma.thesisbackend.entities.PostLike;
 import com.naukma.thesisbackend.entities.User;
@@ -73,22 +74,23 @@ public class PostService {
     }
 
 
-    private Set<CommentDto> getPostCommentTree(Post post, @Nullable String userId){
+    private List<CommentDto> getPostCommentTree(Post post, @Nullable String userId){
         return post
                 .getComments()
                 .stream()
                 .filter(comment -> comment.getReplyTo()==null)
+                .sorted(Comparator.comparing(Comment::getCommentedDate).reversed())
                 .map(comment -> commentService.commentToCommentDto(comment, userId))
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     /**
      * method for converting post comments into {@link Set<CommentDto>} list for returning as response
      * @param postId post id
      * @param userId id of current user
-     * @return {@link Set<CommentDto>} list
+     * @return {@link List<CommentDto>} list
      */
-    public Set<CommentDto> getPostCommentTree(Long postId, @Nullable String userId){
+    public List<CommentDto> getPostCommentTree(Long postId, @Nullable String userId){
         Post post = postRepository.findPostByPostId(postId).orElseThrow(()-> new EntityNotFoundException("No such post"));
 
         return getPostCommentTree(post, userId);
@@ -165,7 +167,7 @@ public class PostService {
         post.setPostAuthor(author);
         post.setTitle(postRequestDto.title());
         post.setContent(postRequestDto.content());
-        post.setTags(new HashSet<>(tagRepository.findAllById(postRequestDto.tags())));
+        post.setTags(new ArrayList<>(tagRepository.findAllById(postRequestDto.tags())));
 
         return postToPostDto(postRepository.save(post), author.getUserId(), false);
     }
@@ -187,7 +189,7 @@ public class PostService {
 
         post.setTitle(postRequestDto.title());
         post.setContent(postRequestDto.content());
-        post.setTags(new HashSet<>(tagRepository.findAllById(postRequestDto.tags())));
+        post.setTags(new ArrayList<>(tagRepository.findAllById(postRequestDto.tags())));
 
         return postToPostDto(postRepository.save(post), userId, false);
     }

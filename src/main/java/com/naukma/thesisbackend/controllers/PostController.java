@@ -132,7 +132,7 @@ public class PostController {
      * @return comments tree
      */
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<Set<CommentDto>> getCommentsOfPost(@PathVariable("postId") Long postId){
+    public ResponseEntity<List<CommentDto>> getCommentsOfPost(@PathVariable("postId") Long postId){
         String userId = authService.getCurrentUserId();
 
         return ResponseEntity.ok(postService.getPostCommentTree(postId, userId));

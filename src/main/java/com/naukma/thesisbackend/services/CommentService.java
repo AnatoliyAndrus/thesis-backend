@@ -10,10 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,13 +34,14 @@ public class CommentService {
     public CommentDto commentToCommentDto(Comment comment,
                                           @Nullable String userId){
 
-        Set<CommentDto> replies = new HashSet<>();
+        List<CommentDto> replies = new ArrayList<>();
         if(comment.getReplies()!=null&&!comment.getReplies().isEmpty()){
             replies = comment
                     .getReplies()
                     .stream()
+                    .sorted(Comparator.comparing(Comment::getCommentedDate).reversed())
                     .map(reply->commentToCommentDto(reply, userId))
-                    .collect(Collectors.toSet());
+                    .toList();
         }
 
         boolean isLiked = userId != null && !userId.isEmpty() && (comment
@@ -53,11 +51,13 @@ public class CommentService {
 
         return new CommentDto(
                 comment.getCommentId(),
+                comment.getPost().getPostId(),
                 comment.getContent(),
                 comment.getCommentAuthor().getUserId(),
                 comment.getCommentAuthor().getNickname(),
                 comment.isEdited(),
                 replies,
+                comment.getReplyTo()!=null?comment.getReplyTo().getCommentId():null,
                 comment.getCommentLikes().size(),
                 isLiked,
                 comment.getCommentedDate()

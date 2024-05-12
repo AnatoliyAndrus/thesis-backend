@@ -2,7 +2,7 @@ package com.naukma.thesisbackend.dtos;
 
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Dto for getting non-sensitive user info from server
@@ -14,7 +14,7 @@ import java.util.Set;
 public record UserBasicInfoDto (
         String userId,
         String nickname,
-        Set<Long> postIds,
+        List<Long> postIds,
         LocalDateTime registeredDate
 ){
 

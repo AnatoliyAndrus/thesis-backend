@@ -14,10 +14,10 @@ public record PostDto(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime postedDate,
     int likes,
-    Set<CommentDto> comments,
+    List<CommentDto> comments,
     boolean isLiked,
     String authorUserId,
     String authorNickname,
-    Set<Tag> tags
+    List<Tag> tags
 ) {
 }
